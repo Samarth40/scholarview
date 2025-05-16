@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Understanding Machine Learning",
+    "authors": ["John Doe", "Jane Smith"],
+    "abstract": "An in-depth look into machine learning algorithms.",
+    "year": 2020,
+    "citations": 150,
+    "journal": "Journal of AI Research",
+    "link": "https://example.com/paper1"
+  },
+  {
+    "title": "Deep Learning for Vision",
+    "authors": ["Alice Brown", "Bob White"],
+    "abstract": "Exploring deep learning techniques for computer vision.",
+    "year": 2022,
+    "citations": 95,
+    "journal": "Vision AI Conference",
+    "link": "https://example.com/paper2"
+  },
+  {
+    "title": "Natural Language Processing Advances",
+    "authors": ["Carol Green"],
+    "abstract": "Recent advances in NLP and their applications.",
+    "year": 2021,
+    "citations": 120,
+    "journal": "NLP Journal",
+    "link": "https://example.com/paper3"
+  }
+] 
