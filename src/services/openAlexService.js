@@ -5,6 +5,83 @@
 
 const API_BASE_URL = 'https://api.openalex.org';
 
+// Simple in-memory cache for API responses
+const cache = {
+  searches: new Map(),
+  works: new Map(),
+  authors: new Map(),
+  journals: new Map(),
+  // Cache expiry time in milliseconds (10 minutes)
+  expiryTime: 10 * 60 * 1000,
+};
+
+/**
+ * Generate a cache key from request parameters
+ */
+const generateCacheKey = (endpoint, params) => {
+  return `${endpoint}:${JSON.stringify(params)}`;
+};
+
+/**
+ * Check if cache entry is valid
+ */
+const isCacheValid = (entry) => {
+  return entry && Date.now() - entry.timestamp < cache.expiryTime;
+};
+
+/**
+ * Make an API request with caching
+ */
+const makeApiRequest = async (endpoint, params = {}) => {
+  const cacheKey = generateCacheKey(endpoint, params);
+  const cacheStore = cache[endpoint.split('/')[0]] || cache.searches;
+  
+  // Check cache
+  const cachedResponse = cacheStore.get(cacheKey);
+  if (isCacheValid(cachedResponse)) {
+    console.log(`Using cached response for ${cacheKey}`);
+    return cachedResponse.data;
+  }
+  
+  // Build query string
+  const queryParams = new URLSearchParams();
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      queryParams.append(key, value);
+    }
+  });
+  
+  // Add polite pool identifier
+  queryParams.append('mailto', 'user@example.com');
+  
+  // Make request
+  const url = `${API_BASE_URL}/${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  console.log(`Fetching from OpenAlex API: ${url}`);
+  
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`OpenAlex API error: ${response.status} - ${errorData.message || response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Cache the response
+    cacheStore.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    });
+    
+    return data;
+  } catch (error) {
+    console.error(`Error in API request to ${endpoint}:`, error);
+    throw error;
+  }
+};
+
 /**
  * Searches for works (papers) in OpenAlex
  * @param {Object} params - Search parameters
@@ -22,36 +99,18 @@ export const searchWorks = async ({
   sort = 'cited_by_count:desc'
 } = {}) => {
   try {
-    const queryParams = new URLSearchParams();
+    const params = {
+      search: query,
+      page,
+      'per-page': perPage,
+      filter,
+      sort,
+    };
     
-    if (query) {
-      queryParams.append('search', query);
-    }
-    
-    queryParams.append('page', page);
-    queryParams.append('per-page', perPage);
-    
-    if (filter) {
-      queryParams.append('filter', filter);
-    }
-    
-    if (sort) {
-      queryParams.append('sort', sort);
-    }
-    
-    // Add your email for polite usage
-    queryParams.append('mailto', 'user@example.com');
-    
-    const response = await fetch(`${API_BASE_URL}/works?${queryParams}`);
-    
-    if (!response.ok) {
-      throw new Error(`OpenAlex API error: ${response.status}`);
-    }
-    
-    return await response.json();
+    return await makeApiRequest('works', params);
   } catch (error) {
     console.error('Error searching OpenAlex works:', error);
-    throw error;
+    throw new Error(`Failed to search papers: ${error.message}`);
   }
 };
 
@@ -62,17 +121,11 @@ export const searchWorks = async ({
  */
 export const getWorkById = async (id) => {
   try {
-    // Add your email for polite usage
-    const response = await fetch(`${API_BASE_URL}/works/${id}?mailto=user@example.com`);
-    
-    if (!response.ok) {
-      throw new Error(`OpenAlex API error: ${response.status}`);
-    }
-    
-    return await response.json();
+    if (!id) throw new Error('Work ID is required');
+    return await makeApiRequest(`works/${id}`);
   } catch (error) {
     console.error('Error fetching work details:', error);
-    throw error;
+    throw new Error(`Failed to fetch paper details: ${error.message}`);
   }
 };
 
@@ -82,6 +135,8 @@ export const getWorkById = async (id) => {
  * @returns {Object} - ScholarView paper object
  */
 export const convertWorkToPaper = (work) => {
+  if (!work) return null;
+  
   // Safely access nested properties
   const getNestedProperty = (obj, path, defaultValue = '') => {
     const value = path.split('.').reduce((acc, part) => acc && acc[part] !== undefined ? acc[part] : undefined, obj);
@@ -89,7 +144,7 @@ export const convertWorkToPaper = (work) => {
   };
   
   return {
-    id: work.id,
+    id: work.id || `paper-${Math.random().toString(36).substring(2, 9)}`,
     title: work.title || 'Untitled Paper',
     authors: work.authorships?.map(authorship => 
       getNestedProperty(authorship, 'author.display_name', 'Unknown Author')
@@ -100,6 +155,12 @@ export const convertWorkToPaper = (work) => {
     citations: work.cited_by_count || 0,
     link: work.doi ? `https://doi.org/${work.doi}` : (work.open_access?.oa_url || '#'),
     doi: work.doi || '',
+    concepts: work.concepts?.slice(0, 5).map(concept => ({
+      name: concept.display_name,
+      score: concept.score
+    })) || [],
+    openAccess: !!work.open_access?.is_oa,
+    publishedDate: work.publication_date || null,
   };
 };
 
@@ -110,6 +171,8 @@ export const convertWorkToPaper = (work) => {
  * @returns {Promise<Array>} - Array of related papers in ScholarView format
  */
 export const getRelatedWorks = async (workId, limit = 5) => {
+  if (!workId) return [];
+  
   try {
     // Get related works by using the "related_to" filter
     const response = await searchWorks({
@@ -121,7 +184,10 @@ export const getRelatedWorks = async (workId, limit = 5) => {
       return [];
     }
     
-    return response.results.map(convertWorkToPaper);
+    return response.results
+      .filter(work => work !== null)
+      .map(convertWorkToPaper)
+      .filter(paper => paper !== null);
   } catch (error) {
     console.error('Error fetching related works:', error);
     return [];
@@ -141,10 +207,15 @@ export const searchPapers = async ({
   yearTo = null,
   authorName = '',
   journalName = '',
-  sort = 'cited_by_count:desc'
+  subject = '',
+  sort = 'cited_by_count:desc',
+  filter = ''
 } = {}) => {
   try {
     let filters = [];
+    
+    // Add existing filter if provided
+    if (filter) filters.push(filter);
     
     if (yearFrom && yearTo) {
       filters.push(`publication_year:${yearFrom}-${yearTo}`);
@@ -162,6 +233,10 @@ export const searchPapers = async ({
       filters.push(`primary_location.source.display_name.search:${journalName}`);
     }
     
+    if (subject) {
+      filters.push(`concepts.display_name.search:${subject}`);
+    }
+    
     const filterString = filters.length > 0 ? filters.join(',') : '';
     
     const results = await searchWorks({
@@ -172,8 +247,12 @@ export const searchPapers = async ({
       sort
     });
     
+    const papers = results.results
+      ?.map(convertWorkToPaper)
+      .filter(paper => paper !== null) || [];
+    
     return {
-      papers: results.results?.map(convertWorkToPaper) || [],
+      papers,
       meta: {
         totalCount: results.meta?.count || 0,
         currentPage: page,
@@ -183,6 +262,95 @@ export const searchPapers = async ({
     };
   } catch (error) {
     console.error('Error searching papers:', error);
-    throw error;
+    throw new Error(`Failed to search papers: ${error.message}`);
   }
+};
+
+/**
+ * Get popular authors for filtering options
+ * @param {number} limit - Maximum number of authors to return
+ * @returns {Promise<Array<string>>} - Array of author names
+ */
+export const getPopularAuthors = async (limit = 20) => {
+  try {
+    const cacheKey = `popular-authors:${limit}`;
+    const cachedAuthors = cache.authors.get(cacheKey);
+    
+    if (isCacheValid(cachedAuthors)) {
+      return cachedAuthors.data;
+    }
+    
+    const response = await makeApiRequest('authors', {
+      'per-page': limit,
+      sort: 'works_count:desc'
+    });
+    
+    if (!response || !response.results) {
+      return [];
+    }
+    
+    const authors = response.results
+      .map(author => author.display_name)
+      .filter(name => !!name);
+    
+    cache.authors.set(cacheKey, {
+      data: authors,
+      timestamp: Date.now()
+    });
+    
+    return authors;
+  } catch (error) {
+    console.error('Error fetching popular authors:', error);
+    return [];
+  }
+};
+
+/**
+ * Get popular journals for filtering options
+ * @param {number} limit - Maximum number of journals to return
+ * @returns {Promise<Array<string>>} - Array of journal names
+ */
+export const getPopularJournals = async (limit = 20) => {
+  try {
+    const cacheKey = `popular-journals:${limit}`;
+    const cachedJournals = cache.journals.get(cacheKey);
+    
+    if (isCacheValid(cachedJournals)) {
+      return cachedJournals.data;
+    }
+    
+    const response = await makeApiRequest('sources', {
+      'per-page': limit,
+      sort: 'works_count:desc',
+      filter: 'type:journal'
+    });
+    
+    if (!response || !response.results) {
+      return [];
+    }
+    
+    const journals = response.results
+      .map(journal => journal.display_name)
+      .filter(name => !!name);
+    
+    cache.journals.set(cacheKey, {
+      data: journals,
+      timestamp: Date.now()
+    });
+    
+    return journals;
+  } catch (error) {
+    console.error('Error fetching popular journals:', error);
+    return [];
+  }
+};
+
+/**
+ * Clear the API cache
+ */
+export const clearCache = () => {
+  cache.searches.clear();
+  cache.works.clear();
+  cache.authors.clear();
+  cache.journals.clear();
 }; 

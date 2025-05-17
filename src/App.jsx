@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import papersData from './papers.json'
-import { searchPapers, getRelatedWorks } from './services/openAlexService'
+import { searchPapers, getRelatedWorks, getPopularAuthors, getPopularJournals } from './services/openAlexService'
 import useLocalStorage from './hooks/useLocalStorage'
 
 // Import components
@@ -21,9 +22,10 @@ const TABS = [
 ]
 
 const SORT_OPTIONS = [
-  { value: 'citations', label: 'Most Cited' },
-  { value: 'year', label: 'Recent First' },
-  { value: 'title', label: 'Title A-Z' },
+  { value: 'cited_by_count:desc', label: 'Most Cited' },
+  { value: 'publication_date:desc', label: 'Recent First' },
+  { value: 'display_name', label: 'Title A-Z' },
+  { value: 'relevance_score:desc', label: 'Relevance' },
 ]
 
 // Example subjects - in a real app, these would be extracted from the paper data
@@ -100,6 +102,54 @@ const Doodle = ({ type, className }) => {
   return doodles[type] || null;
 };
 
+// ScrollToTopButton component
+const ScrollToTopButton = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Show button when page is scrolled down
+  const toggleVisibility = () => {
+    if (window.pageYOffset > 300) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  // Set the scroll event listener
+  useEffect(() => {
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  // Scroll to top function
+  const scrollUp = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  return (
+    <motion.button
+      onClick={scrollUp}
+      className="fixed bottom-8 right-8 neo-button bg-[#4b91ff] p-3 z-50 text-white"
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ 
+        opacity: isVisible ? 1 : 0, 
+        scale: isVisible ? 1 : 0.5,
+        y: isVisible ? 0 : 20
+      }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -4, boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)" }}
+      whileTap={{ y: 0, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </svg>
+    </motion.button>
+  );
+};
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('all')
   const [papers, setPapers] = useState([])
@@ -122,17 +172,33 @@ const App = () => {
     currentPage: 1,
     totalPages: 1,
     totalCount: 0,
-    perPage: 25
+    perPage: 12
+  });
+  
+  // State for filter options
+  const [filterOptions, setFilterOptions] = useState({
+    authors: [],
+    journals: [],
+    isLoading: false
   });
 
   // Extract unique values for filter options
   const years = [...Array(30)].map((_, i) => new Date().getFullYear() - i);
-  const journals = []; // Will be populated from API results
-  const authors = []; // Will be populated from API results
 
-  // Load initial papers
+  // Ref for the search bar section
+  const searchBarRef = useRef(null);
+
+  // Function to scroll to the search bar
+  const scrollToSearchBar = () => {
+    if (searchBarRef.current) {
+      searchBarRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Load initial papers and filter options
   useEffect(() => {
     fetchPapers();
+    fetchFilterOptions();
   }, []);
 
   // Fetch papers when search query, filters or page changes
@@ -141,6 +207,27 @@ const App = () => {
       fetchPapers();
     }
   }, [searchQuery, filters, pagination.currentPage, sortBy, activeTab]);
+
+  // Function to fetch authors and journals for filters
+  const fetchFilterOptions = async () => {
+    setFilterOptions(prev => ({ ...prev, isLoading: true }));
+    try {
+      // Fetch in parallel
+      const [authors, journals] = await Promise.all([
+        getPopularAuthors(30),
+        getPopularJournals(30)
+      ]);
+      
+      setFilterOptions({
+        authors,
+        journals,
+        isLoading: false
+      });
+    } catch (err) {
+      console.error('Error fetching filter options:', err);
+      setFilterOptions(prev => ({ ...prev, isLoading: false }));
+    }
+  };
 
   // Function to fetch papers from OpenAlex API
   const fetchPapers = async () => {
@@ -169,6 +256,7 @@ const App = () => {
         yearTo,
         authorName: filters.author,
         journalName: filters.journal,
+        subject: filters.subject,
         sort: sortBy
       };
 
@@ -306,7 +394,8 @@ const App = () => {
   }
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
+    setFilters(prev => ({ ...prev, [key]: value }));
+    scrollToSearchBar();
   }
 
   const handleSearch = (query) => {
@@ -315,6 +404,7 @@ const App = () => {
       ...prev,
       currentPage: 1 // Reset to first page on new search
     }));
+    scrollToSearchBar();
   };
 
   const handlePageChange = (newPage) => {
@@ -322,6 +412,7 @@ const App = () => {
       ...prev,
       currentPage: newPage
     }));
+    scrollToSearchBar();
   };
 
   const clearFilters = () => {
@@ -337,26 +428,41 @@ const App = () => {
       ...prev,
       currentPage: 1
     }));
+    scrollToSearchBar();
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 xl:px-16 xl:py-12 bg-[#FCFCFC] relative overflow-hidden">
+    <div className="min-h-screen p-0 bg-[#FCFCFC] relative overflow-hidden -mt-4 md:-mt-8">
+      {/* Scroll to top button */}
+      <ScrollToTopButton />
+      
       {/* Background decorations */}
       <BackgroundDecorations />
       
-      <div className="w-full py-8 px-6 md:px-10 relative">
+      {/* Header and Hero section - full width */}
+      <div className="w-full py-0 pt-0 relative">
         {/* Header with logo and sign in */}
         <Header />
 
-        {/* Main hero content */}
+        {/* Main hero content - full width */}
         <Hero />
+      </div>
 
-        {/* Search functionality */}
-        <SearchBar onSearch={handleSearch} />
+      {/* Search bar in its own section */}
+      <div className="w-full bg-[#f8f9fa] py-8 shadow-md relative z-20 border-y-4 border-black">
+        <div className="absolute inset-0 overflow-hidden opacity-10">
+          <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full bg-[#fe5d97]"></div>
+          <div className="absolute top-10 right-10 w-20 h-20 rounded-full bg-[#4b91ff]"></div>
+          <div className="absolute bottom-10 left-1/2 w-30 h-30 rounded-full bg-[#fed823]"></div>
+        </div>
+        <div className="max-w-5xl mx-auto px-6 md:px-10 relative" ref={searchBarRef}>
+          <h2 className="text-2xl font-bold mb-4 text-center">Search Academic Papers</h2>
+          <SearchBar onSearch={handleSearch} />
+        </div>
       </div>
 
       {/* Main content area */}
-      <div className="max-w-6xl mx-auto mt-8">
+      <div className="max-w-6xl mx-auto mt-8 px-6 md:px-10">
         {/* Navigation tabs, sorting, and filters */}
         <div className="flex justify-between items-center mb-8 flex-col sm:flex-row gap-4">
           <TabBar 
@@ -367,6 +473,7 @@ const App = () => {
                 ...prev,
                 currentPage: 1 // Reset to first page when changing tabs
               }));
+              scrollToSearchBar();
             }}
             favorites={favorites}
             readingList={readingList}
@@ -380,6 +487,7 @@ const App = () => {
                   ...prev,
                   currentPage: 1
                 }));
+                scrollToSearchBar();
               }} 
             />
             <FiltersToggle showFilters={showFilters} setShowFilters={setShowFilters} />
@@ -392,9 +500,10 @@ const App = () => {
           handleFilterChange={handleFilterChange} 
           clearFilters={clearFilters} 
           years={years} 
-          authors={authors} 
-          journals={journals} 
+          authors={filterOptions.authors} 
+          journals={filterOptions.journals} 
           showFilters={showFilters}
+          isLoadingOptions={filterOptions.isLoading}
         />
 
         {/* Stats bar */}
@@ -404,7 +513,13 @@ const App = () => {
         {isLoading && (
           <div className="text-center py-8">
             <div className="neo-container bg-white p-4 inline-block">
-              <div className="animate-pulse">Loading papers...</div>
+              <div className="animate-pulse flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading papers...
+              </div>
             </div>
           </div>
         )}
@@ -424,7 +539,12 @@ const App = () => {
 
         {/* Papers grid */}
         {!isLoading && !error && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             {displayedPapers.length > 0 ? (
               displayedPapers.map((paper, idx) => (
                 <PaperCard 
@@ -446,30 +566,59 @@ const App = () => {
                 searchQuery={searchQuery}
               />
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* Pagination */}
         {!isLoading && !error && pagination.totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 mb-16">
-            <button 
+          <motion.div 
+            className="flex justify-center items-center gap-2 mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              delay: 0.6, 
+              type: "spring", 
+              stiffness: 200, 
+              damping: 20 
+            }}
+          >
+            <motion.button 
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
               className={`neo-button ${pagination.currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+              whileHover={pagination.currentPage !== 1 ? { 
+                y: -4, 
+                boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)"
+              } : {}}
+              whileTap={pagination.currentPage !== 1 ? { 
+                y: 0, 
+                boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" 
+              } : {}}
             >
               Previous
-            </button>
-            <div className="neo-container bg-white px-4 py-2">
+            </motion.button>
+            <motion.div 
+              className="neo-container bg-white px-4 py-2"
+              whileHover={{ y: -2 }}
+            >
               Page {pagination.currentPage} of {pagination.totalPages}
-            </div>
-            <button 
+            </motion.div>
+            <motion.button 
               onClick={() => handlePageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
               className={`neo-button ${pagination.currentPage === pagination.totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+              whileHover={pagination.currentPage !== pagination.totalPages ? { 
+                y: -4, 
+                boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)" 
+              } : {}}
+              whileTap={pagination.currentPage !== pagination.totalPages ? { 
+                y: 0, 
+                boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" 
+              } : {}}
             >
               Next
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
       </div>
 
@@ -486,6 +635,7 @@ const App = () => {
           isFavorite={favorites.some(fav => fav.id === selectedPaper.id || fav.title === selectedPaper.title)}
           isInReadingList={readingList.some(item => item.id === selectedPaper.id || item.title === selectedPaper.title)}
           searchQuery={searchQuery}
+          loadRelatedPapers={() => getRelatedWorks(selectedPaper.id, 3)}
         />
       )}
     </div>

@@ -1,54 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 // Example subjects - in a real app, these would be extracted from the paper data
 const SUBJECTS = ['Computer Science', 'Machine Learning', 'AI Research', 'Computer Vision', 'NLP'];
-
-/**
- * Custom Dropdown Portal component for rendering dropdowns outside the container
- */
-const DropdownPortal = ({ children, isOpen, buttonRect }) => {
-  const portalRef = useRef(null);
-  
-  // Always declare hooks, regardless of conditions
-  useEffect(() => {
-    // Only create portal when needed
-    if (isOpen && buttonRect) {
-      // Create portal element if needed
-      if (!portalRef.current) {
-        portalRef.current = document.createElement('div');
-        portalRef.current.style.position = 'absolute';
-        portalRef.current.style.zIndex = '9999';
-        document.body.appendChild(portalRef.current);
-      }
-    }
-    
-    // Cleanup function
-    return () => {
-      if (portalRef.current && portalRef.current.parentNode) {
-        document.body.removeChild(portalRef.current);
-        portalRef.current = null;
-      }
-    };
-  }, [isOpen, buttonRect]);
-  
-  // Early return if not showing dropdown
-  if (!isOpen || !buttonRect || !portalRef.current) return null;
-  
-  // Position dropdown
-  const style = {
-    position: 'fixed',
-    top: `${buttonRect.bottom + 4}px`,
-    left: `${buttonRect.left}px`,
-    width: `${buttonRect.width}px`,
-    zIndex: 9999,
-  };
-  
-  return ReactDOM.createPortal(
-    <div style={style}>{children}</div>,
-    portalRef.current
-  );
-};
 
 /**
  * FilterSection component for filtering papers
@@ -60,92 +19,72 @@ const FilterSection = ({
   years, 
   authors, 
   journals, 
-  showFilters 
+  showFilters,
+  isLoadingOptions = false
 }) => {
   if (!showFilters) return null;
   
-  // Custom dropdown component with neobrutalism styling
-  const NeoDropdown = ({ label, value, options, onChange, defaultOption }) => {
+  // NeoBrutalism styled dropdown component 
+  const NeoDropdown = ({ label, value, options = [], onChange, defaultOption, isLoading = false }) => {
+    const displayValue = value || defaultOption;
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedValue, setSelectedValue] = useState(value || '');
-    const buttonRef = useRef(null);
-    const [buttonRect, setButtonRect] = useState(null);
-    
-    // Update button position when dropdown opens
-    const toggleDropdown = () => {
-      if (!isOpen && buttonRef.current) {
-        setButtonRect(buttonRef.current.getBoundingClientRect());
-      }
-      setIsOpen(!isOpen);
-    };
-    
-    // Close dropdown when clicking outside
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (isOpen && 
-            buttonRef.current && 
-            !buttonRef.current.contains(event.target) && 
-            !event.target.closest('.dropdown-menu')) {
-          setIsOpen(false);
-        }
-      };
-      
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, [isOpen]);
-    
-    // Update when value changes from parent
-    useEffect(() => {
-      setSelectedValue(value || '');
-    }, [value]);
-    
-    const handleSelect = (option) => {
-      setSelectedValue(option);
-      onChange(option);
-      setIsOpen(false);
-    };
-    
-    const displayValue = selectedValue || defaultOption;
-    
+
     return (
       <div>
         <label className="block text-sm font-bold mb-2">{label}</label>
-        <button
-          ref={buttonRef}
-          type="button"
-          onClick={toggleDropdown}
-          className="neo-input w-full px-4 py-2 pr-10 bg-[#fed823] border-2 border-black font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all transform hover:-translate-y-1 active:translate-y-0 text-left relative"
-          style={{ transform: `rotate(${Math.random() * 2 - 1}deg)` }}
-        >
-          {displayValue}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
-        </button>
-        
-        <DropdownPortal isOpen={isOpen} buttonRect={buttonRect}>
-          <div className="dropdown-menu bg-white border-2 border-black neo-container shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-h-60 overflow-y-auto">
-            <div 
-              className="p-2 hover:bg-[#fed823] cursor-pointer font-bold"
-              onClick={() => handleSelect('')}
+        <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
+          <DropdownMenuTrigger className="w-full px-4 py-2 pr-10 bg-[#fed823] border-2 border-black font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all transform hover:-translate-y-1 active:translate-y-0 rounded-none text-left relative" style={{ transform: `rotate(${Math.random() * 2 - 1}deg)` }}>
+            <div className="flex items-center justify-between">
+              <span className="truncate">{displayValue}</span>
+              {isLoading && (
+                <svg className="animate-spin h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
+            </div>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="border-2 border-black bg-white neo-container shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none max-h-60 overflow-y-auto w-full">
+            <DropdownMenuItem 
+              className="p-2 hover:bg-[#fe5d97] hover:text-white cursor-pointer font-bold"
+              onClick={() => {
+                onChange('');
+                setIsOpen(false);
+              }}
             >
               {defaultOption}
-            </div>
-            {options.map(option => (
-              <div 
-                key={option} 
-                className={`p-2 hover:bg-[#fed823] cursor-pointer ${option === selectedValue ? 'bg-[#fe5d97] text-white' : ''}`}
-                onClick={() => handleSelect(option)}
-              >
-                {option}
+            </DropdownMenuItem>
+            {isLoading ? (
+              <div className="p-4 text-center">
+                <svg className="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="mt-2">Loading options...</p>
               </div>
-            ))}
-          </div>
-        </DropdownPortal>
+            ) : options.length > 0 ? (
+              options.map(option => (
+                <DropdownMenuItem 
+                  key={option} 
+                  className={`p-2 hover:bg-[#fe5d97] hover:text-white cursor-pointer ${option === value ? 'bg-[#fe5d97] text-white' : ''}`}
+                  onClick={() => {
+                    onChange(option);
+                    setIsOpen(false);
+                  }}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">No options available</div>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   };
@@ -174,6 +113,7 @@ const FilterSection = ({
         options={authors}
         onChange={value => handleFilterChange('author', value)}
         defaultOption="All Authors"
+        isLoading={isLoadingOptions}
       />
       
       <NeoDropdown 
@@ -182,6 +122,7 @@ const FilterSection = ({
         options={journals}
         onChange={value => handleFilterChange('journal', value)}
         defaultOption="All Journals"
+        isLoading={isLoadingOptions}
       />
       
       <div className="col-span-1 md:col-span-2 lg:col-span-4 flex justify-end">
