@@ -833,34 +833,166 @@ export const Footer = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.5, duration: 0.5 }}
     >
-      <div className="max-w-6xl mx-auto text-center px-4">
-        <motion.div 
-          className="flex flex-col items-center mb-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div className="flex items-center gap-2 mb-4" variants={itemVariants}>
-            <motion.div 
-              className="neo-container bg-white text-black w-10 h-10 flex items-center justify-center font-bold transform rotate-12"
-              whileHover={{ rotate: 20, transition: { duration: 0.3, ease: "easeInOut" }}}
-            >
-              S
+      <div className="max-w-6xl mx-auto px-6 md:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+          {/* Logo & Main Info */}
+          <motion.div 
+            className="flex flex-col items-center md:items-start"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div className="flex items-center gap-2 mb-4" variants={itemVariants}>
+              <motion.div 
+                className="neo-container bg-white text-black w-10 h-10 flex items-center justify-center font-bold transform rotate-12"
+                whileHover={{ rotate: 20, transition: { duration: 0.3, ease: "easeInOut" }}}
+              >
+                S
+              </motion.div>
+              <div className="text-xl font-black">ScholarView</div>
             </motion.div>
-            <div className="text-xl font-black">ScholarView</div>
+            <motion.p className="text-sm font-medium text-center md:text-left" variants={itemVariants}>
+              Explore and discover academic research papers with our powerful filtering and sorting tools.
+              Find the most relevant papers for your research needs.
+            </motion.p>
           </motion.div>
-          <motion.p className="max-w-lg mx-auto text-sm font-medium" variants={itemVariants}>
-            Explore and discover academic research papers with our powerful filtering and sorting tools.
-            Find the most relevant papers for your research needs.
-          </motion.p>
-        </motion.div>
+          
+          {/* Hackathon Info */}
+          <motion.div
+            className="bg-white border-3 border-black p-4 relative"
+            style={{ 
+              boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
+              transform: 'rotate(1deg)'
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            whileHover={{ 
+              y: -5, 
+              boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)',
+              transition: { duration: 0.2 }
+            }}
+          >
+            <h3 className="font-black text-lg mb-2 relative inline-block">
+              CodeCircuit Hackathon
+              <motion.div 
+                className="absolute -bottom-1 left-0 h-2 w-full bg-[#fe5d97] -z-10"
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+              />
+            </h3>
+            <p className="text-sm mb-3">
+              This project was created for the CodeCircuit Hackathon, addressing the challenge:
+            </p>
+            <div className="bg-[#fed823] border-2 border-black p-2">
+              <p className="text-xs font-bold italic">
+                "Academic archive with paper filters, sort by citations, and tabbed UI."
+              </p>
+            </div>
+            
+            {/* Corner decoration */}
+            <motion.div 
+              className="absolute -top-2 -right-2 w-4 h-4 bg-[#53dd6c] border-2 border-black"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            />
+          </motion.div>
+          
+          {/* Developer Info */}
+          <motion.div
+            className="bg-white border-3 border-black p-4 relative"
+            style={{ 
+              boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
+              transform: 'rotate(-1deg)'
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            whileHover={{ 
+              y: -5, 
+              boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)',
+              transition: { duration: 0.2 }
+            }}
+          >
+            <h3 className="font-black text-lg mb-2 relative inline-block">
+              Developer
+              <motion.div 
+                className="absolute -bottom-1 left-0 h-2 w-full bg-[#4b91ff] -z-10"
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ delay: 0.9, duration: 0.6 }}
+              />
+            </h3>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-[#be8cfe] border-2 border-black flex items-center justify-center font-bold text-white">
+                <span className="text-lg">S</span>
+              </div>
+              <div>
+                <p className="font-bold">Samarth Shinde</p>
+                <a 
+                  href="https://samarthshinde.tech" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium inline-block relative"
+                >
+                  samarthshinde.tech
+                  <motion.div 
+                    className="absolute bottom-0 left-0 h-[2px] bg-black w-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                  />
+                </a>
+              </div>
+            </div>
+            <p className="text-xs">
+              Passionate about creating intuitive and visually appealing interfaces that enhance the user experience.
+            </p>
+            
+            {/* Corner decoration */}
+            <motion.div 
+              className="absolute -top-2 -left-2 w-4 h-4 bg-[#fe5d97] border-2 border-black"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            />
+          </motion.div>
+        </div>
+        
+        {/* Copyright Section */}
         <motion.div 
-          className="border-t border-black pt-6 text-sm font-bold"
+          className="border-t border-black pt-6 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <p>© 2025 ScholarView. Styled with Neobrutalism design.</p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm font-bold">© 2025 ScholarView. Styled with Neobrutalism design.</p>
+            <div className="flex gap-3">
+              <motion.a 
+                href="https://github.com/Samarth40/scholarview" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white p-2 border-2 border-black"
+                whileHover={{ y: -3, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+              </motion.a>
+              <motion.a 
+                href="https://samarthshinde.tech" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white p-2 border-2 border-black"
+                whileHover={{ y: -3, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </motion.a>
+            </div>
+          </div>
         </motion.div>
       </div>
     </motion.footer>
