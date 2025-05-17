@@ -86,8 +86,8 @@ const PaperCard = ({
                          index % 5 === 2 ? "#4b91ff" : 
                          index % 5 === 3 ? "#53dd6c" : "#be8cfe";
   
-  // Slight rotation for visual interest
-  const rotation = index % 2 === 0 ? '1deg' : '-1deg';
+  // Slight rotation for visual interest - disable on mobile for better space usage
+  const rotation = window.innerWidth > 768 ? (index % 2 === 0 ? '1deg' : '-1deg') : '0deg';
   
   // Paper pattern background
   const patterns = [
@@ -106,8 +106,12 @@ const PaperCard = ({
       style={{ 
         "--card-background": cardBackground,
         transform: `rotate(${rotation})`,
-        border: "4px solid black",
-        boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)"
+        border: "3px solid black",
+        boxShadow: "4px 4px 0px 0px rgba(0,0,0,1)",
+        "@media (min-width: 768px)": {
+          border: "4px solid black",
+          boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)"
+        }
       }}
       variants={cardVariants}
       custom={index}
@@ -119,7 +123,7 @@ const PaperCard = ({
     >
       {/* Paper corner fold effect */}
       <motion.div 
-        className="absolute top-0 right-0 w-12 h-12 bg-white"
+        className="absolute top-0 right-0 w-8 h-8 md:w-12 md:h-12 bg-white"
         style={{
           clipPath: "polygon(100% 0, 0 0, 100% 100%)",
           filter: "drop-shadow(-2px 2px 1px rgba(0,0,0,0.2))"
@@ -137,19 +141,19 @@ const PaperCard = ({
       />
       
       {/* Card content with proper spacing */}
-      <div className="p-6 relative z-10">
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
+      <div className="p-3 sm:p-4 md:p-6 relative z-10">
+        <div className="flex flex-wrap justify-between gap-2 md:gap-4 mb-3 md:mb-4">
           <motion.h2 
-            className="text-xl font-black tracking-tight cursor-pointer hover:underline"
+            className="text-lg md:text-xl font-black tracking-tight cursor-pointer hover:underline"
             onClick={() => openDetails(paper)}
             whileHover={{ scale: 1.03 }}
           >
             {searchQuery ? highlightText(paper.title, searchQuery) : paper.title}
           </motion.h2>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             <motion.button 
               onClick={() => toggleFavorite(paper)}
-              className={`p-1.5 rounded-full hover:bg-white/30 transition-colors ${isFavorite ? 'text-red-600 bg-white/20' : 'text-gray-700'}`}
+              className={`p-1 sm:p-1.5 rounded-full hover:bg-white/30 transition-colors ${isFavorite ? 'text-red-600 bg-white/20' : 'text-gray-700'}`}
               aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
               title={isFavorite ? "Remove from favorites" : "Add to favorites"}
               whileHover={{ scale: 1.2 }}
@@ -159,7 +163,7 @@ const PaperCard = ({
             </motion.button>
             <motion.button 
               onClick={() => toggleReadingList(paper)}
-              className={`p-1.5 rounded-full hover:bg-white/30 transition-colors ${isInReadingList ? 'text-blue-600 bg-white/20' : 'text-gray-700'}`}
+              className={`p-1 sm:p-1.5 rounded-full hover:bg-white/30 transition-colors ${isInReadingList ? 'text-blue-600 bg-white/20' : 'text-gray-700'}`}
               aria-label={isInReadingList ? "Remove from reading list" : "Add to reading list"}
               title={isInReadingList ? "Remove from reading list" : "Add to reading list"}
               whileHover={{ scale: 1.2 }}
@@ -170,9 +174,9 @@ const PaperCard = ({
           </div>
         </div>
         
-        <div className="mb-4">
+        <div className="mb-3 md:mb-4">
           <motion.span 
-            className="neo-badge font-bold tracking-tight inline-block"
+            className="neo-badge font-bold tracking-tight inline-block text-xs md:text-sm"
             variants={badgeVariants}
             whileHover="hover"
             whileTap="tap"
@@ -186,7 +190,7 @@ const PaperCard = ({
         </div>
 
         <motion.div 
-          className="mb-4 p-3 bg-white/30 rounded border-2 border-black"
+          className="mb-3 md:mb-4 p-2 md:p-3 bg-white/30 rounded border-2 border-black text-xs md:text-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 + (index * 0.05) }}
@@ -195,7 +199,7 @@ const PaperCard = ({
         </motion.div>
 
         <motion.div 
-          className="mb-5 text-sm leading-relaxed font-medium p-3 bg-white/40 rounded border-2 border-black max-h-24 overflow-hidden"
+          className="mb-4 md:mb-5 text-xs md:text-sm leading-relaxed font-medium p-2 md:p-3 bg-white/40 rounded border-2 border-black max-h-16 md:max-h-24 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 + (index * 0.05) }}
@@ -211,14 +215,14 @@ const PaperCard = ({
         </motion.div>
 
         <motion.div 
-          className="flex flex-wrap items-center justify-between mt-4 pt-4 border-t-2 border-black/20"
+          className="flex flex-wrap items-center justify-between mt-3 md:mt-4 pt-3 md:pt-4 border-t-2 border-black/20"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 + (index * 0.05) }}
         >
-          <div className="flex gap-3 flex-wrap mb-3 md:mb-0">
+          <div className="flex gap-2 md:gap-3 flex-wrap mb-3 w-full md:w-auto">
             <motion.span 
-              className="neo-badge bg-white text-black"
+              className="neo-badge bg-white text-black text-xs"
               variants={badgeVariants}
               whileHover="hover"
               whileTap="tap"
@@ -230,7 +234,7 @@ const PaperCard = ({
               <YearIcon /> {paper.year}
             </motion.span>
             <motion.span 
-              className="neo-badge bg-white text-black"
+              className="neo-badge bg-white text-black text-xs"
               variants={badgeVariants}
               whileHover="hover"
               whileTap="tap"
@@ -243,7 +247,7 @@ const PaperCard = ({
             </motion.span>
             {isInReadingList && (
               <motion.span 
-                className="neo-badge bg-[#4b91ff] text-white flex items-center gap-1"
+                className="neo-badge bg-[#4b91ff] text-white flex items-center gap-1 text-xs"
                 variants={badgeVariants}
                 whileHover="hover"
                 whileTap="tap"
@@ -260,18 +264,18 @@ const PaperCard = ({
               </motion.span>
             )}
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap w-full md:w-auto justify-center md:justify-end">
             <motion.button
               onClick={() => openDetails(paper)}
-              className="neo-button bg-white text-black border-black py-2"
+              className="neo-button bg-white text-black border-black py-1 px-2 md:py-2 md:px-3 text-xs md:text-sm"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
               style={{
                 border: "2px solid black",
                 boxShadow: "3px 3px 0px 0px rgba(0,0,0,1)",
-                marginTop: "6px",
-                marginBottom: "6px",
+                marginTop: "3px",
+                marginBottom: "3px",
                 position: "relative",
                 transform: "translateZ(0)",
                 transition: "transform 0.3s, box-shadow 0.3s",
@@ -310,15 +314,15 @@ const PaperCard = ({
               href={paper.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="neo-button py-2 flex items-center gap-1"
+              className="neo-button py-1 px-2 md:py-2 md:px-3 flex items-center gap-1 text-xs md:text-sm"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
               style={{
                 border: "2px solid black",
                 boxShadow: "3px 3px 0px 0px rgba(0,0,0,1)",
-                marginTop: "6px",
-                marginBottom: "6px",
+                marginTop: "3px",
+                marginBottom: "3px",
                 position: "relative",
                 transform: "translateZ(0) rotate(-1deg)",
                 transition: "transform 0.3s, box-shadow 0.3s",

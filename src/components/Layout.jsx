@@ -174,25 +174,25 @@ export const Header = () => {
   return (
     <div className="w-full pt-0 pb-2 mt-0">
       <motion.div 
-        className="max-w-6xl mx-auto px-6 md:px-10 flex justify-between items-center"
+        className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 flex justify-between items-center"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <motion.div className="flex items-center gap-3" variants={itemVariants}>
+        <motion.div className="flex items-center gap-2 md:gap-3" variants={itemVariants}>
           <motion.div 
-            className="neo-container bg-[#fed823] text-black w-10 h-10 flex items-center justify-center font-bold text-xl"
+            className="neo-container bg-[#fed823] text-black w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold text-lg md:text-xl"
             whileHover={{ rotate: 5, transition: { duration: 0.3, ease: "easeInOut" }}}
           >
             S
           </motion.div>
-        <div className="font-black text-xl tracking-tight">ScholarView</div>
+        <div className="font-black text-lg md:text-xl tracking-tight">ScholarView</div>
         </motion.div>
         
         {/* Authentication buttons */}
         {!user ? (
           <motion.button 
-            className="neo-button bg-[#fe5d97] font-bold tracking-tight"
+            className="neo-button bg-[#fe5d97] font-bold tracking-tight text-sm md:text-base py-1 px-3 md:py-2 md:px-4"
             variants={itemVariants}
             whileHover="hover"
             whileTap="tap"
@@ -207,28 +207,28 @@ export const Header = () => {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
               <motion.div 
-                className="neo-container bg-[#4b91ff] text-white w-10 h-10 flex items-center justify-center font-bold text-xl border-2 border-black relative"
+                className="neo-container bg-[#4b91ff] text-white w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold text-lg md:text-xl border-2 border-black relative"
                 whileHover={{ rotate: 5, transition: { duration: 0.3, ease: "easeInOut" }}}
                 style={{ boxShadow: "3px 3px 0px 0px rgba(0,0,0,1)" }}
               >
                 {user.username?.charAt(0).toUpperCase() || 'U'}
                 {/* Decorative element */}
                 <motion.div 
-                  className="absolute -top-1 -right-1 w-3 h-3 bg-[#fe5d97] border border-black rounded-full"
+                  className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-[#fe5d97] border border-black rounded-full"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </motion.div>
               <motion.span 
-                className="ml-2 font-bold hidden sm:block"
+                className="ml-2 font-bold hidden sm:block text-sm md:text-base"
                 animate={{ x: showProfileMenu ? 3 : 0 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 {user.username || 'User'}
               </motion.span>
               <motion.svg 
-                width="14" 
-                height="14" 
+                width="12" 
+                height="12" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -245,58 +245,34 @@ export const Header = () => {
             <AnimatePresence>
               {showProfileMenu && (
                 <motion.div 
-                  className="absolute right-0 mt-2 w-48 bg-white border-4 border-black z-50"
+                  className="absolute right-0 mt-2 w-40 sm:w-48 bg-white border-4 border-black z-50"
                   style={{ 
                     boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)",
-                    transform: "rotate(-1deg)"
                   }}
-                  initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 >
-                  <div className="p-3 border-b-2 border-black">
-                    <p className="font-bold text-sm">Signed in as:</p>
-                    <p className="text-sm truncate font-medium">{user.email}</p>
+                  <div className="p-3 text-sm md:text-base">
+                    <div className="font-black mb-1">{user.username || 'User'}</div>
+                    <div className="text-xs text-gray-600 mb-3">{user.email || 'user@example.com'}</div>
+                    
+                    <div className="space-y-2">
+                      <button
+                        className="w-full text-left font-bold py-1 px-2 hover:bg-[#fe5d97] hover:text-white transition-colors"
+                        onClick={handleOpenProfile}
+                      >
+                        My Profile
+                      </button>
+                      <button
+                        className="w-full text-left font-bold py-1 px-2 hover:bg-[#fe5d97] hover:text-white transition-colors"
+                        onClick={handleLogout}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-2">
-                    <motion.button 
-                      className="w-full text-left px-3 py-2 font-bold text-sm hover:bg-black/5 flex items-center"
-                      whileHover={{ x: 3 }}
-                      onClick={handleOpenProfile}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
-                      Profile
-                    </motion.button>
-                    <motion.button 
-                      className="w-full text-left px-3 py-2 font-bold text-sm hover:bg-black/5 flex items-center"
-                      whileHover={{ x: 3 }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                      Saved Papers
-                    </motion.button>
-                    <div className="border-t-2 border-black/10 my-1"></div>
-                    <motion.button 
-                      className="w-full text-left px-3 py-2 font-bold text-sm hover:bg-black/5 flex items-center text-red-600"
-                      whileHover={{ x: 3, backgroundColor: "rgba(239, 68, 68, 0.05)" }}
-                      onClick={handleLogout}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                      </svg>
-                      Sign out
-                    </motion.button>
-      </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -304,30 +280,16 @@ export const Header = () => {
         )}
       </motion.div>
       
-      {/* Authentication modal */}
-      {showAuth && <AuthPage onClose={() => setShowAuth(false)} onLoginSuccess={handleLoginSuccess} />}
-      
-      {/* Profile page */}
+      {/* Auth modal */}
       <AnimatePresence>
-        {showProfilePage && user && (
-          <ProfilePage 
-            user={user} 
-            onClose={() => setShowProfilePage(false)} 
-            onUpdateUser={(updatedUser) => {
-              setUser(updatedUser);
-              localStorage.setItem('scholarViewUser', JSON.stringify(updatedUser));
-            }}
-          />
-        )}
+        {showAuth && <AuthPage onClose={() => setShowAuth(false)} onLoginSuccess={handleLoginSuccess} />}
+        {showProfilePage && <ProfilePage user={user} onClose={() => setShowProfilePage(false)} />}
       </AnimatePresence>
       
       {/* Welcome notification */}
       <AnimatePresence>
         {showWelcomeNotification && user && (
-          <WelcomeNotification 
-            user={user} 
-            onClose={() => setShowWelcomeNotification(false)}
-          />
+          <WelcomeNotification user={user} onClose={() => setShowWelcomeNotification(false)} />
         )}
       </AnimatePresence>
     </div>
@@ -335,490 +297,179 @@ export const Header = () => {
 };
 
 /**
- * Hero component with main title and description - enhanced with neobrutalism style
+ * Hero Component with title and call-to-action
  */
-export const Hero = () => {
-  // Array of decorative shapes for the background
-  const shapes = [
-    { type: 'circle', size: 80, color: '#fe5d97', top: '10%', left: '8%', delay: 0.1 },
-    { type: 'square', size: 60, color: '#fed823', top: '70%', left: '15%', delay: 0.3 },
-    { type: 'triangle', size: 70, color: '#4b91ff', top: '25%', left: '80%', delay: 0.5 },
-    { type: 'circle', size: 50, color: '#53dd6c', top: '75%', left: '85%', delay: 0.7 },
-    { type: 'square', size: 40, color: '#be8cfe', top: '15%', left: '45%', delay: 0.2 },
-    { type: 'diamond', size: 55, color: '#fe5d97', top: '60%', left: '60%', delay: 0.4 },
-    { type: 'circle', size: 30, color: '#4b91ff', top: '40%', left: '25%', delay: 0.6 }
-  ];
-  
-  // Floating dots for background decoration
-  const floatingDots = [
-    { top: '15%', left: '10%', size: 8, delay: 0.2 },
-    { top: '25%', left: '20%', size: 6, delay: 0.5 },
-    { top: '65%', left: '15%', size: 5, delay: 0.8 },
-    { top: '35%', left: '85%', size: 7, delay: 0.3 },
-    { top: '70%', left: '80%', size: 4, delay: 0.6 },
-    { top: '40%', left: '50%', size: 5, delay: 0.9 },
-    { top: '80%', left: '40%', size: 6, delay: 0.4 },
-  ];
-  
-  // Decorative lines
-  const lines = [
-    { top: '20%', left: '0%', width: '15%', angle: 0, delay: 0.3 },
-    { top: '30%', right: '0%', width: '15%', angle: 180, delay: 0.5 },
-    { top: '60%', left: '30%', width: '8%', angle: 45, delay: 0.7 },
-    { top: '75%', right: '25%', width: '10%', angle: -30, delay: 0.4 },
-  ];
-
-  // Papers count animation
-  const paperCount = {
-    hidden: { opacity: 0, y: 20, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut", delay: 1.2 }
+export const Hero = ({ onGetStartedClick }) => {
+  // Animation variants for staggered children
+  const heroVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
     }
   };
-
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        type: "spring", 
+        damping: 13, 
+        stiffness: 100,
+        mass: 0.8
+      } 
+    }
+  };
+  
   return (
-    <motion.div 
-      className="relative overflow-hidden pt-0 bg-gradient-to-b from-[#fcfcfc] to-[#f5f5f5]"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Animated gradient background */}
-      <motion.div 
-        className="absolute inset-0 -z-10 opacity-20"
-        animate={{
-          background: [
-            'radial-gradient(circle at 30% 20%, rgba(254, 93, 151, 0.3), transparent 30%), radial-gradient(circle at 70% 60%, rgba(75, 145, 255, 0.3), transparent 30%)',
-            'radial-gradient(circle at 40% 40%, rgba(254, 93, 151, 0.3), transparent 30%), radial-gradient(circle at 60% 30%, rgba(75, 145, 255, 0.3), transparent 30%)',
-            'radial-gradient(circle at 30% 60%, rgba(254, 93, 151, 0.3), transparent 30%), radial-gradient(circle at 70% 40%, rgba(75, 145, 255, 0.3), transparent 30%)',
-            'radial-gradient(circle at 30% 20%, rgba(254, 93, 151, 0.3), transparent 30%), radial-gradient(circle at 70% 60%, rgba(75, 145, 255, 0.3), transparent 30%)'
-          ]
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          repeatType: "reverse"
-        }}
-      />
-
-      {/* Floating dots */}
-      {floatingDots.map((dot, index) => (
-        <motion.div
-          key={`dot-${index}`}
-          className="absolute rounded-full border-2 border-black"
-          style={{
-            top: dot.top,
-            left: dot.left,
-            width: dot.size,
-            height: dot.size,
-            backgroundColor: '#000000',
-            opacity: 0.15,
-          }}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: 0.15, 
-            scale: 1,
-            y: [0, -15, 0],
-          }}
-          transition={{
-            y: {
-              repeat: Infinity,
-              duration: 3 + Math.random() * 2,
-              ease: "easeInOut",
-            },
-            opacity: { delay: dot.delay, duration: 0.8 },
-            scale: { delay: dot.delay, duration: 0.8 }
-          }}
-        />
-      ))}
-
-      {/* Decorative lines */}
-      {lines.map((line, index) => (
-        <motion.div
-          key={`line-${index}`}
-          className="absolute h-[2px] bg-black opacity-10"
-          style={{
-            top: line.top,
-            left: line.left,
-            right: line.right,
-            width: line.width,
-            transform: `rotate(${line.angle}deg)`,
-          }}
-          initial={{ scaleX: 0, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 0.1 }}
-          transition={{ delay: line.delay, duration: 0.8 }}
-        />
-      ))}
-
-      {/* Background shapes */}
-      {shapes.map((shape, index) => (
-        <motion.div
-          key={index}
-          className="absolute z-0 hidden md:block"
-          style={{ 
-            top: shape.top, 
-            left: shape.left,
-            width: shape.size,
-            height: shape.type === 'triangle' ? shape.size * 0.866 : shape.size, // Height adjustment for triangles
-            backgroundColor: shape.type !== 'triangle' && shape.type !== 'diamond' ? shape.color : 'transparent',
-            borderRadius: shape.type === 'circle' ? '50%' : '0',
-            clipPath: shape.type === 'triangle' 
-              ? 'polygon(50% 0%, 0% 100%, 100% 100%)' 
-              : shape.type === 'diamond'
-                ? 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-                : 'none',
-            border: '3px solid black',
-            zIndex: 0,
-            opacity: 0.7
-          }}
-          initial={{ opacity: 0, scale: 0, rotate: -20 }}
-          animate={{ 
-            opacity: 0.7, 
-            scale: 1, 
-            rotate: 0,
-            y: [0, -8, 0],
-          }}
-          transition={{ 
-            delay: shape.delay, 
-            duration: 0.8, 
-            type: "spring", 
-            stiffness: 200,
-            y: {
-              repeat: Infinity,
-              duration: 4 + Math.random() * 3,
-              ease: "easeInOut",
-              delay: shape.delay,
-            }
-          }}
-          whileHover={{ 
-            scale: 1.1,
-            rotate: 5, 
-            transition: { duration: 0.3 }
-          }}
-        />
-      ))}
-
-      {/* Main content area - centered within full width */}
-      <div className="max-w-6xl mx-auto px-6 md:px-10 relative z-10 pt-0">
-        {/* Spotlight effect */}
-        <motion.div
-          className="absolute w-[120%] h-[400px] bg-[#fed823] rounded-full opacity-10 blur-[100px] -top-[100px] -left-[10%]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0.05, 0.1, 0.05] }}
-          transition={{ 
-            duration: 5,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
-
-        <motion.div 
-          className="text-center mt-6"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <motion.div
-            className="inline-block relative"
-            whileHover={{ scale: 1.05 }}
-          >
-            <motion.span 
-              className="inline-block py-2 px-4 mb-3 bg-[#4b91ff] text-white text-sm md:text-base font-bold border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              whileHover={{ y: -5 }}
-            >
-              DISCOVER RESEARCH
-            </motion.span>
-            <motion.div 
-              className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#fe5d97] border-2 border-black"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            />
-          </motion.div>
-        </motion.div>
-
-        <motion.div 
-          className="relative mx-auto mb-8"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 300, 
-            damping: 24,
-            delay: 0.6 
-          }}
-        >
-          {/* Animated stripes background */}
-          <motion.div 
-            className="absolute inset-0 -z-10 overflow-hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={`stripe-${i}`}
-                className="absolute h-1.5 bg-black opacity-[0.03]"
-                style={{
-                  top: `${i * 22}%`,
-                  left: 0,
-                  right: 0,
-                }}
-                animate={{
-                  x: [0, 10, 0, -10, 0],
-                }}
-                transition={{
-                  duration: 10,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.2,
-                }}
-              />
-            ))}
-          </motion.div>
-
-          <motion.div 
-            className="neo-container bg-[#fed823] py-8 px-8 md:px-12 mx-auto relative transform rotate-0 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-            whileHover={{ 
-              rotate: 0.5, 
-              transition: { duration: 0.3 } 
-            }}
-          >
-            {/* Decorative corner elements */}
-            <motion.div 
-              className="absolute -top-2 -left-2 w-4 h-4 bg-[#fe5d97] border-2 border-black"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1, rotate: [0, 180, 360] }}
-              transition={{ 
-                scale: { delay: 1.2, duration: 0.3 },
-                rotate: { delay: 1.2, duration: 3, repeat: Infinity, ease: "linear" }
-              }}
-            />
-            <motion.div 
-              className="absolute -bottom-2 -right-2 w-4 h-4 bg-[#4b91ff] border-2 border-black"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1, rotate: [0, -180, -360] }}
-              transition={{ 
-                scale: { delay: 1.3, duration: 0.3 },
-                rotate: { delay: 1.3, duration: 3, repeat: Infinity, ease: "linear" }
-              }}
-            />
-
-            <motion.h1 
-              className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-black mb-1 relative z-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              <motion.span
-                className="block"
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6, duration: 0.7, type: "spring" }}
-              >
-                Academic Paper
-              </motion.span>
-              <motion.span
-                className="text-[#fe5d97] relative inline-block mt-1"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1.0 }}
-              >
-                Explorer
-                <motion.div 
-                  className="absolute -bottom-2 left-0 h-3 w-full bg-[#53dd6c] -z-10"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 0.8, delay: 1.2 }}
-                />
-              </motion.span>
-            </motion.h1>
-          </motion.div>
-
-          {/* Paper stack decoration */}
-          <motion.div 
-            className="absolute -right-6 -bottom-8 w-24 h-28 bg-white border-2 border-black rotate-6 z-0 hidden md:block"
-            animate={{ 
-              rotate: [6, -2, 6],
-              y: [0, -5, 0]
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 5,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div 
-            className="absolute -right-3 -bottom-4 w-24 h-28 bg-[#be8cfe] border-2 border-black rotate-3 z-1 hidden md:block"
-            animate={{ 
-              rotate: [3, -4, 3],
-              y: [0, -3, 0]
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 6,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
-          />
-          <motion.div 
-            className="absolute -right-8 -bottom-2 w-16 h-20 bg-[#53dd6c] border-2 border-black rotate-12 z-2 hidden md:block"
-            animate={{ 
-              rotate: [12, 8, 12],
-              y: [0, -6, 0]
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 7,
-              ease: "easeInOut",
-              delay: 0.3
-            }}
-          />
-        </motion.div>
-
-        <motion.div 
-          className="text-center max-w-2xl mx-auto mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.5 }}
-        >
-          <motion.p 
-            className="text-lg md:text-xl font-medium"
-            whileHover={{ scale: 1.03 }}
-          >
-            <motion.span
-              className="inline-block"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-            >
-              Discover, filter, and organize academic research with our powerful search tools. 
-            </motion.span>{" "}
-            <motion.span
-              className="inline-block"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.6, duration: 0.5 }}
-            >
-              Explore papers by citation count, publication date, or research area.
-            </motion.span>
-          </motion.p>
-        </motion.div>
-
-        {/* Paper stats */}
-        <motion.div 
-          className="flex justify-center gap-8 mb-8"
-          variants={paperCount}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div 
-            className="text-center"
-            whileHover={{ scale: 1.1, y: -5 }}
-          >
-            <motion.div 
-              className="text-xl md:text-2xl font-black text-[#fe5d97] relative"
-              animate={{ 
-                scale: [1, 1.1, 1],
-              }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                repeatDelay: 3
-              }}
-            >
-              <motion.div
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 border-[#fe5d97] opacity-0"
-                animate={{ 
-                  scale: [1, 1.8, 1],
-                  opacity: [0, 0.4, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatDelay: 3
-                }}
-              />
-              10,000+
-            </motion.div>
-            <div className="text-sm font-bold">Research Papers</div>
-          </motion.div>
-          
-          <motion.div 
-            className="text-center"
-            whileHover={{ scale: 1.1, y: -5 }}
-          >
-            <motion.div 
-              className="text-xl md:text-2xl font-black text-[#4b91ff] relative"
-              animate={{ 
-                scale: [1, 1.1, 1],
-              }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                repeatDelay: 3.5,
-                delay: 0.5
-              }}
-            >
-              <motion.div
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 border-[#4b91ff] opacity-0"
-                animate={{ 
-                  scale: [1, 1.8, 1],
-                  opacity: [0, 0.4, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatDelay: 3.5,
-                  delay: 0.5
-                }}
-              />
-              250+
-            </motion.div>
-            <div className="text-sm font-bold">Academic Journals</div>
-          </motion.div>
-          
-          <motion.div 
-            className="text-center"
-            whileHover={{ scale: 1.1, y: -5 }}
-          >
-            <motion.div 
-              className="text-xl md:text-2xl font-black text-[#53dd6c] relative"
-              animate={{ 
-                scale: [1, 1.1, 1],
-              }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                repeatDelay: 4,
-                delay: 1
-              }}
-            >
-              <motion.div
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 border-[#53dd6c] opacity-0"
-                animate={{ 
-                  scale: [1, 1.8, 1],
-                  opacity: [0, 0.4, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatDelay: 4,
-                  delay: 1
-                }}
-              />
-              500+
-            </motion.div>
-            <div className="text-sm font-bold">Authors</div>
-          </motion.div>
-        </motion.div>
+    <div className="w-full relative overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute w-full h-64 -rotate-3 bg-gradient-to-r from-[#fef9c3] via-[#fcf3a3] to-[#fcf5c9] -translate-y-16"></div>
       </div>
-    </motion.div>
+      
+      {/* Content */}
+      <motion.div 
+        className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-16 relative z-10" 
+        variants={heroVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="w-full md:w-1/2 mb-10 md:mb-0">
+            <motion.div className="flex flex-wrap gap-2 mb-4" variants={itemVariants}>
+              <div className="neo-badge bg-[#fe5d97] text-white">Academic Research</div>
+              <div className="neo-badge bg-[#4b91ff] text-white">Paper Explorer</div>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 tracking-tight"
+              variants={itemVariants}
+            >
+              Discover Academic Research with{" "}
+              <span className="inline-block relative">
+                ScholarView
+                <div className="absolute w-full h-2 bg-[#fe5d97] bottom-1 -z-10 transform -rotate-1"></div>
+              </span>
+            </motion.h1>
+            
+            <motion.p 
+              className="text-lg md:text-xl mb-6 text-gray-700 max-w-lg"
+              variants={itemVariants}
+            >
+              Explore, filter, and organize scholarly papers with our intuitive academic paper interface.
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-wrap gap-3 md:gap-4"
+              variants={itemVariants}
+            >
+              <motion.button 
+                className="neo-button bg-black text-white px-5 py-2 md:px-6 md:py-3 font-bold text-base md:text-lg"
+                whileHover={{ 
+                  y: -4, 
+                  boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)",
+                  transition: { type: "spring", stiffness: 400, damping: 10 }
+                }}
+                whileTap={{ 
+                  y: 0, 
+                  boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)",
+                  transition: { duration: 0.1 }
+                }}
+                onClick={onGetStartedClick}
+              >
+                Get Started
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="ml-2">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </motion.button>
+              
+              <motion.button 
+                className="neo-button bg-white text-black px-5 py-2 md:px-6 md:py-3 font-bold text-base md:text-lg"
+                whileHover={{ 
+                  y: -4, 
+                  boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)",
+                  transition: { type: "spring", stiffness: 400, damping: 10 }
+                }}
+                whileTap={{ 
+                  y: 0, 
+                  boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)",
+                  transition: { duration: 0.1 }
+                }}
+              >
+                Learn More
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+              </motion.button>
+            </motion.div>
+          </div>
+          
+          <motion.div 
+            className="w-full md:w-1/2 pl-0 md:pl-6"
+            variants={itemVariants}
+          >
+            <div className="relative">
+              {/* Main illustration */}
+              <motion.div 
+                className="neo-container bg-white p-3 md:p-5 border-4 border-black transform rotate-2"
+                whileHover={{ rotate: -1, y: -5, transition: { duration: 0.3 } }}
+                style={{ boxShadow: "8px 8px 0px 0px rgba(0,0,0,1)" }}
+              >
+                {/* Example paper card */}
+                <div className="border-2 border-black p-3 md:p-4 mb-3 md:mb-4 bg-[#fed823]">
+                  <div className="text-sm md:text-base font-bold mb-2">Attention is All You Need</div>
+                  <div className="text-xs md:text-sm">Vaswani et al. • 2017 • 23,521 citations</div>
+                </div>
+                
+                <div className="border-2 border-[#fe5d97] bg-white p-3 md:p-4 mb-3 md:mb-4">
+                  <div className="text-sm md:text-base font-bold mb-2">Deep Residual Learning for Image Recognition</div>
+                  <div className="text-xs md:text-sm">He et al. • 2016 • 107,292 citations</div>
+                </div>
+                
+                <div className="border-2 border-[#4b91ff] bg-white p-3 md:p-4">
+                  <div className="text-sm md:text-base font-bold mb-2">BERT: Pre-training of Deep Bidirectional Transformers</div>
+                  <div className="text-xs md:text-sm">Devlin et al. • 2018 • 68,131 citations</div>
+                </div>
+              </motion.div>
+              
+              {/* Decoration: Search icon */}
+              <motion.div 
+                className="neo-container absolute -top-6 -right-6 md:-top-10 md:-right-10 bg-[#fe5d97] p-2 md:p-3 border-3 border-black z-10 hidden sm:block"
+                initial={{ rotate: -10 }}
+                animate={{ rotate: -5, y: [0, -10, 0] }}
+                transition={{ 
+                  rotate: { duration: 2, repeat: Infinity, repeatType: 'reverse' },
+                  y: { duration: 3, repeat: Infinity, repeatType: 'reverse' }
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+              </motion.div>
+              
+              {/* Decoration: Star */}
+              <motion.div 
+                className="absolute -bottom-4 -left-4 md:-bottom-8 md:-left-8 hidden sm:block"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="#53dd6c" stroke="black" strokeWidth="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
@@ -827,175 +478,97 @@ export const Hero = () => {
  */
 export const Footer = () => {
   return (
-    <motion.footer 
-      className="neo-container bg-[#4b91ff] text-black w-full py-12 mt-auto transform -rotate-1"
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.5, duration: 0.5 }}
-    >
-      <div className="max-w-6xl mx-auto px-6 md:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          {/* Logo & Main Info */}
-          <motion.div 
-            className="flex flex-col items-center md:items-start"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.div className="flex items-center gap-2 mb-4" variants={itemVariants}>
-              <motion.div 
-                className="neo-container bg-white text-black w-10 h-10 flex items-center justify-center font-bold transform rotate-12"
-                whileHover={{ rotate: 20, transition: { duration: 0.3, ease: "easeInOut" }}}
-              >
+    <footer className="bg-[#fed823] border-t-4 border-black pt-8 pb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* ScholarView Section */}
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 md:gap-3 mb-3">
+              <div className="neo-container bg-white text-black w-8 h-8 flex items-center justify-center font-bold text-lg transform rotate-3 border-2 border-black">
                 S
-              </motion.div>
-              <div className="text-xl font-black">ScholarView</div>
-            </motion.div>
-            <motion.p className="text-sm font-medium text-center md:text-left" variants={itemVariants}>
-              Explore and discover academic research papers with our powerful filtering and sorting tools.
-              Find the most relevant papers for your research needs.
-            </motion.p>
-          </motion.div>
-          
-          {/* Hackathon Info */}
-          <motion.div
-            className="bg-white border-3 border-black p-4 relative"
-            style={{ 
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
-              transform: 'rotate(1deg)'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            whileHover={{ 
-              y: -5, 
-              boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)',
-              transition: { duration: 0.2 }
-            }}
-          >
-            <h3 className="font-black text-lg mb-2 relative inline-block">
-              CodeCircuit Hackathon
-              <motion.div 
-                className="absolute -bottom-1 left-0 h-2 w-full bg-[#fe5d97] -z-10"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-              />
-            </h3>
-            <p className="text-sm mb-3">
-              This project was created for the CodeCircuit Hackathon, addressing the challenge:
+              </div>
+              <span className="font-black text-lg md:text-xl tracking-tight">ScholarView</span>
+            </div>
+            <p className="text-sm md:text-base text-black max-w-xs">
+              Explore and discover academic research papers with our powerful filtering and sorting tools. Find the most relevant papers for your research needs.
             </p>
-            <div className="bg-[#fed823] border-2 border-black p-2">
-              <p className="text-xs font-bold italic">
-                "Academic archive with paper filters, sort by citations, and tabbed UI."
+          </div>
+          
+          {/* CodeCircuit Hackathon Section */}
+          <div className="md:col-span-1">
+            <div className="neo-container bg-white border-2 border-black p-4 transform -rotate-1">
+              <h3 className="font-bold text-lg relative">
+                CodeCircuit Hackathon
+                <div className="h-1 bg-[#fe5d97] absolute bottom-0 left-0 right-0"></div>
+              </h3>
+              <p className="text-sm mt-2">
+                This project was created for the CodeCircuit Hackathon, addressing the challenge:
               </p>
-            </div>
-            
-            {/* Corner decoration */}
-            <motion.div 
-              className="absolute -top-2 -right-2 w-4 h-4 bg-[#53dd6c] border-2 border-black"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            />
-          </motion.div>
-          
-          {/* Developer Info */}
-          <motion.div
-            className="bg-white border-3 border-black p-4 relative"
-            style={{ 
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
-              transform: 'rotate(-1deg)'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            whileHover={{ 
-              y: -5, 
-              boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)',
-              transition: { duration: 0.2 }
-            }}
-          >
-            <h3 className="font-black text-lg mb-2 relative inline-block">
-              Developer
-              <motion.div 
-                className="absolute -bottom-1 left-0 h-2 w-full bg-[#4b91ff] -z-10"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.9, duration: 0.6 }}
-              />
-            </h3>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-[#be8cfe] border-2 border-black flex items-center justify-center font-bold text-white">
-                <span className="text-lg">S</span>
+              <div className="bg-[#fed823] border-2 border-black p-2 mt-3 text-sm">
+                <p className="italic">
+                  "Academic archive with paper filters, sort by citations, and tabbed UI."
+                </p>
               </div>
-              <div>
-                <p className="font-bold">Samarth Shinde</p>
-                <a 
-                  href="https://samarthshinde.tech" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium inline-block relative"
-                >
-                  samarthshinde.tech
-                  <motion.div 
-                    className="absolute bottom-0 left-0 h-[2px] bg-black w-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                  />
-                </a>
-              </div>
-            </div>
-            <p className="text-xs">
-              Passionate about creating intuitive and visually appealing interfaces that enhance the user experience.
-            </p>
-            
-            {/* Corner decoration */}
-            <motion.div 
-              className="absolute -top-2 -left-2 w-4 h-4 bg-[#fe5d97] border-2 border-black"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            />
-          </motion.div>
-        </div>
-        
-        {/* Copyright Section */}
-        <motion.div 
-          className="border-t border-black pt-6 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm font-bold">© 2025 ScholarView. Styled with Neobrutalism design.</p>
-            <div className="flex gap-3">
-              <motion.a 
-                href="https://github.com/Samarth40/scholarview" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-white p-2 border-2 border-black"
-                whileHover={{ y: -3, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-              </motion.a>
-              <motion.a 
-                href="https://samarthshinde.tech" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-white p-2 border-2 border-black"
-                whileHover={{ y: -3, boxShadow: "2px 2px 0px 0px rgba(0,0,0,1)" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                </svg>
-              </motion.a>
+              
+              {/* Decorative elements */}
+              <div className="absolute top-1 right-3 w-3 h-3 bg-[#53dd6c] border border-black"></div>
+              <div className="absolute top-1 right-8 w-3 h-3 bg-[#fe5d97] border border-black"></div>
             </div>
           </div>
-        </motion.div>
+          
+          {/* Developer Section */}
+          <div className="md:col-span-1">
+            <div className="neo-container bg-white border-2 border-black p-4">
+              <h3 className="font-bold text-lg mb-3">Developer</h3>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-[#be8cfe] flex items-center justify-center font-bold border-2 border-black">
+                  S
+                </div>
+                <div>
+                  <p className="font-bold">Samarth Shinde</p>
+                  <a href="https://samarthshinde.tech" className="text-sm underline hover:text-[#fe5d97]">
+                    samarthshinde.tech
+                  </a>
+                </div>
+              </div>
+              <p className="text-sm">
+                Passionate about creating intuitive and visually appealing interfaces that enhance the user experience.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom copyright and links */}
+        <div className="mt-12 pt-6 border-t border-black flex flex-col sm:flex-row justify-between items-center">
+          <p className="text-sm mb-4 sm:mb-0">
+            &copy; 2025 ScholarView. Styled with Neobrutalism design.
+          </p>
+          
+          <div className="flex space-x-3">
+            <a 
+              href="https://github.com" 
+              className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center hover:bg-[#f0f0f0]"
+              aria-label="GitHub"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </a>
+            <a 
+              href="#" 
+              className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center hover:bg-[#f0f0f0]"
+              aria-label="External link"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
-    </motion.footer>
+    </footer>
   );
 };
 

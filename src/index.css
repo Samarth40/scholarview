@@ -262,20 +262,203 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .animate-fadeOut {
-  animation: fadeOut 0.3s ease-out;
+  animation: fadeOut 0.5s ease-out forwards;
 }
 
-/* Toast container styles */
 .toast-container {
   position: fixed;
+  z-index: 100;
   top: 1.5rem;
-  right: 1.5rem;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* RESPONSIVE STYLES */
+/* These styles will make the website responsive for all screen sizes */
+
+/* Small adjustments for the neobrutalism styling on smaller screens */
+@media (max-width: 768px) {
+  @theme {
+    --border-width: 2px;
+    --shadow-offset: 3px;
+    --border-radius: 0.4rem;
+  }
+  
+  .neo-button, .neo-badge {
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .neo-button:hover {
+    transform: none;
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--shadow-color);
+  }
+  
+  .neo-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--shadow-color);
+  }
+}
+
+/* Mobile styles (smaller than 640px) */
+@media (max-width: 639px) {
+  /* Adjust grid layouts to single column */
+  .grid, .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Adjust padding for smaller screens */
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Adjust sizing for containers */
+  .container, .max-w-6xl, .max-w-4xl {
+    width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Make tab navigation scrollable horizontally */
+  .overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Adjust font sizes for better readability on mobile */
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Stack elements vertically that were side by side */
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+  
+  /* Center elements that need centering on mobile */
+  .text-center-mobile {
+    text-align: center !important;
+  }
+  
+  /* Adjust spacing between stacked elements */
+  .gap-mobile-4 > * + * {
+    margin-top: 1rem !important;
+  }
+}
+
+/* Tablet styles (640px - 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  /* Adjust grid layouts to fewer columns */
+  .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Adjust padding for medium screens */
+  .container, .max-w-6xl, .max-w-4xl {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+  
+  /* Adjust font sizes */
+  h1 {
+    font-size: 2rem !important;
+  }
+}
+
+/* Fix for flex items on smaller screens */
+@media (max-width: 767px) {
+  /* Convert complex flex layouts to simpler ones */
+  .flex-wrap-mobile {
+    flex-wrap: wrap !important;
+  }
+  
+  .justify-center-mobile {
+    justify-content: center !important;
+  }
+  
+  /* Make flex items take full width when stacked */
+  .flex-wrap-mobile > * {
+    flex: 0 0 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Hide decorative elements that take up space on mobile */
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  /* Adjust modal sizes */
+  .modal-content {
+    width: 90% !important;
+    max-width: 100% !important;
+    margin: 1rem auto !important;
+    padding: 1rem !important;
+  }
+  
+  /* Fix for pagination on mobile */
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Ensure images and media are responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Add viewport-specific meta for touch devices */
+@media (hover: none) {
+  /* Remove hover effects for touch devices */
+  .neo-button:hover, .neo-card:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--shadow-color) !important;
+  }
+}
+
+/* Helper classes for responsive layouts */
+.hidden-mobile {
+  display: none !important;
+}
+
+@media (min-width: 640px) {
+  .hidden-mobile {
+    display: initial !important; 
+  }
+  
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
+/* Fixed width components should be fluid on mobile */
+.fixed-width {
+  width: 100% !important;
+}
+
+@media (min-width: 768px) {
+  .fixed-width {
+    width: auto !important;
+  }
+}
+
+/* Hide scrollbars but keep scrolling functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, and Opera */
 }

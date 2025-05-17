@@ -464,7 +464,7 @@ const App = () => {
       {/* Main content area */}
       <div className="max-w-6xl mx-auto mt-8 px-6 md:px-10">
         {/* Navigation tabs, sorting, and filters */}
-        <div className="flex justify-between items-center mb-8 flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 md:mb-8 gap-3 sm:gap-4">
           <TabBar 
             activeTab={activeTab} 
             setActiveTab={(tab) => {
@@ -478,7 +478,7 @@ const App = () => {
             favorites={favorites}
             readingList={readingList}
           />
-          <div className="flex space-x-3">
+          <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto justify-center sm:justify-end">
             <SortingDropdown 
               sortBy={sortBy} 
               setSortBy={(sort) => {
@@ -540,7 +540,7 @@ const App = () => {
         {/* Papers grid */}
         {!isLoading && !error && (
           <motion.div 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 mb-8 md:mb-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -570,25 +570,20 @@ const App = () => {
         )}
 
         {/* Pagination */}
-        {!isLoading && !error && pagination.totalPages > 1 && (
+        {!isLoading && !error && activeTab !== 'favorites' && activeTab !== 'readingList' && displayedPapers.length > 0 && pagination.totalPages > 1 && (
           <motion.div 
-            className="flex justify-center items-center gap-2 mb-16"
+            className="flex flex-wrap justify-center items-center gap-2 mb-8 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              delay: 0.6, 
-              type: "spring", 
-              stiffness: 200, 
-              damping: 20 
-            }}
+            transition={{ delay: 0.2 }}
           >
             <motion.button 
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className={`neo-button ${pagination.currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+              className={`neo-button py-1 px-3 md:py-2 md:px-4 text-sm md:text-base ${pagination.currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
               whileHover={pagination.currentPage !== 1 ? { 
                 y: -4, 
-                boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)"
+                boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)" 
               } : {}}
               whileTap={pagination.currentPage !== 1 ? { 
                 y: 0, 
@@ -597,16 +592,52 @@ const App = () => {
             >
               Previous
             </motion.button>
-            <motion.div 
-              className="neo-container bg-white px-4 py-2"
-              whileHover={{ y: -2 }}
-            >
-              Page {pagination.currentPage} of {pagination.totalPages}
-            </motion.div>
+            
+            <div className="flex items-center">
+              {[...Array(Math.min(5, pagination.totalPages))].map((_, idx) => {
+                // Logic to determine which page numbers to show around current page
+                let pageNum;
+                if (pagination.totalPages <= 5) {
+                  pageNum = idx + 1;
+                } else if (pagination.currentPage <= 3) {
+                  pageNum = idx + 1;
+                  if (idx === 4) pageNum = pagination.totalPages;
+                  if (idx === 3 && pagination.totalPages > 5) pageNum = '...';
+                } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + idx;
+                  if (idx === 0) pageNum = 1;
+                  if (idx === 1 && pagination.totalPages > 5) pageNum = '...';
+                } else {
+                  if (idx === 0) pageNum = 1;
+                  else if (idx === 1) pageNum = '...';
+                  else if (idx === 3) pageNum = '...';
+                  else if (idx === 4) pageNum = pagination.totalPages;
+                  else pageNum = pagination.currentPage;
+                }
+
+                // Don't render ellipsis as buttons
+                if (pageNum === '...') {
+                  return <span key={`ellipsis-${idx}`} className="mx-1">...</span>;
+                }
+                
+                return (
+                  <motion.button
+                    key={`page-${pageNum}`}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-xs md:text-sm font-bold mx-1 ${pagination.currentPage === pageNum ? 'bg-[#fe5d97] text-white neo-container' : 'bg-white neo-container'}`}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ y: 0 }}
+                  >
+                    {pageNum}
+                  </motion.button>
+                );
+              })}
+            </div>
+
             <motion.button 
               onClick={() => handlePageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className={`neo-button ${pagination.currentPage === pagination.totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+              className={`neo-button py-1 px-3 md:py-2 md:px-4 text-sm md:text-base ${pagination.currentPage === pagination.totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
               whileHover={pagination.currentPage !== pagination.totalPages ? { 
                 y: -4, 
                 boxShadow: "6px 10px 0px 0px rgba(0,0,0,1)" 
